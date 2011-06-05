@@ -1,0 +1,1639 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>AI LOL:: Arty Insects Loop Of Life</title>
+<link href="css/style1.css" rel="stylesheet" type="text/css" media="screen" />
+
+<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+<script src="http://jquery-ui.googlecode.com/svn/tags/latest/ui/minified/jquery-ui.min.js" type="text/javascript"></script>
+
+<script src="js/jquery.json-2.2.min.js" type="text/javascript"></script>
+<script src="js/jquery.extjasoncookie-0.2.js" type="text/javascript"></script>
+
+<script src="js/jquery-css-transform.js" type="text/javascript"></script>
+<!--<script src="js/queryLoader.js" type="text/javascript"></script>-->
+<script src="js/jquery-animate-css-rotate-scale.js" type="text/javascript"></script>
+<script src="js/jquery.dbj_sound.js" type="text/javascript"></script>
+<script src="js/jquery.pnotify.min.js" type="text/javascript"></script>
+<script src="js/jquery.overlaps.min.js" type="text/javascript"></script>
+<script src="js/jquery.svg.min.js" type="text/javascript"></script>
+<script src="js/jquery.contextmenu.r2.packed.js" type="text/javascript"></script>
+<script src="js/tabbedContent.js" type="text/javascript"></script>
+<script src="js/jquery.deepest.js" type="text/javascript"></script>
+<script src="js/jquery.dump.js" type="text/javascript"></script>
+<script src="js/andy.jqdebugger.js" type="text/javascript"></script>
+<script src="js/jsCheck.js" type="text/javascript"></script>
+
+
+<!--<script type="text/javascript">
+//<![CDATA[
+
+if (!jQuery) {       
+	// jQuery is not loaded
+	alert("External jQuery is not loaded... trying local!");
+	var s = document.createElement('script'); 
+	s.setAttribute('src', 'js/jquery-latest.min.js'); 
+	document.body.appendChild(s); 
+	s.onload=function(){     /*Your Code Here*/ 
+		if(jQuery){
+			alert("Backup succesful! \n Now running version:"+$().jquery);
+		}else{
+			alert("Backup failed!");
+		}
+	}; 
+	void(s);
+}
+// Checking if jQuery UI is loaded or not 
+if($.ui){     
+	// jQuery UI is loaded 
+	//alert("External jQuery UI is loaded... Running version: " + $.ui.version + "!");
+}else {     
+	// jQuery UI is not loaded 
+	alert("External jQuery UI is not loaded... trying local!");
+	var s = document.createElement('script'); 
+	s.setAttribute('src', 'js/jquery-ui.min.js'); 
+	document.body.appendChild(s); 
+	s.onload=function(){     /*Your Code Here*/ 
+		if(jQuery){
+			alert("Backup succesful! \n Now running version:"+$.ui.version);
+		}else{
+			alert("Backup failed!");
+		}
+	}; 
+	void(s);
+}
+
+
+
+//]]>
+</script>-->
+<script type="text/javascript">
+//<![CDATA[
+
+/*settings*/
+LOOPDELAY = 200; //interval in ms
+MINSTARTINGLIFE = LOOPDELAY;
+COMMANDACTIVETIME = 10000;
+COMMANDACTIVETIMEALWAYS = true;
+//MINWIDTHSIZE = 3;
+//MINHEIGHTSIZE = 3;
+GENERATECREATUREQTY = 10; //Qty of creatures per creation not offsprings
+SPREADQTY = 10; //Qty of drops when spreading
+FIXEDSPREADQTY = true; //use random up till if false, use spreadqty as is if true
+CREATOR = "Creator"; //Name for parents to children that were created without real parents
+DEFAULTTARGET = "White space..."; //Text if no target is in sight
+
+//resets
+TARGETLEFT = 240;
+TARGETTOP = 240;
+TOTALGENERATIONS=0;
+//creaturenumber
+CREATURESCREATED = 0;
+CREATURELIST = new Array();
+DROPCOUNTER = 0;
+DROPLIST = new Array();
+//var newTempArray = new Array("#drop1");
+//DROPLIST = jQuery.parseJSON('{"counter":'+0+',"array":'+newTempArray+'}');
+//life
+LIFEVALUE = LOOPDELAY+200; //ms
+LIFESTEP = Math.round(LIFEVALUE/6);
+//sight
+SIGHTRANGE = 40;
+SIGHTRANGESTEP = 2;
+//smell
+SMELLRANGE = 40;
+SMELLRANGESTEP = 2;
+//hear
+HEARRANGE = 40;
+HEARRANGESTEP = 2;
+
+//movement
+///Up
+///Down
+VERTICALMOVEMENT = 2;
+///Left
+///Right
+HORIZONTALMOVEMENT = 2;
+MOVEMENTVARIATIONSTEP = 1;
+
+//color
+REDVALUE = 192;
+GREENVALUE = 192;
+BLUEVALUE = 192;
+COLORVARIATIONSTEP = 32;
+
+//size
+///width
+WIDTHSIZE = 10;
+///height
+HEIGHTSIZE = 10;
+SIZESTEP = 3;
+
+//generation
+//GENERATIONNUMBER = 0;
+//gender
+GENDER=new Array("male","female");
+//fertillity
+//food
+//specials
+
+//STATS
+HIGHESTSTARTINGLIFE = 0;
+LOWESTSTARTINGLIFE = MINSTARTINGLIFE*10;
+HIGHESTWIDTHSIZE = 0;
+LOWESTWIDTHSIZE = WIDTHSIZE*10;
+HIGHESTHEIGHTSIZE = 0;
+LOWESTHEIGHTSIZE = HEIGHTSIZE*10;
+HIGHESTSIGHTRANGE = 0;
+LOWESTSIGHTRANGE = SIGHTRANGE*10;
+HIGHESTSMELLRANGE = 0;
+LOWESTSMELLRANGE = SMELLRANGE*10;
+HIGHESTHEARRANGE = 0;
+LOWESTHEARRANGE = HEARRANGE*10;
+HIGHESTHORIZONTALMOVEMENT = 0;
+LOWESTHORIZONTALMOVEMENT = HORIZONTALMOVEMENT*10;
+HIGHESTVERTICALMOVEMENT = 0;
+LOWESTVERTICALMOVEMENT = VERTICALMOVEMENT*10;
+
+TOTALSPBIRTH = 0;
+TOTALDPBIRTH = 0;
+
+//CURRENTSTATS
+CURRENTHIGHESTSTARTINGLIFE = 0;
+CURRENTLOWESTSTARTINGLIFE = MINSTARTINGLIFE*10;
+CURRENTHIGHESTWIDTHSIZE = 0;
+CURRENTLOWESTWIDTHSIZE = WIDTHSIZE*10;
+CURRENTHIGHESTHEIGHTSIZE = 0;
+CURRENTLOWESTHEIGHTSIZE = HEIGHTSIZE*10;
+CURRENTHIGHESTSIGHTRANGE = 0;
+CURRENTLOWESTSIGHTRANGE = SIGHTRANGE*10;
+CURRENTHIGHESTSMELLRANGE = 0;
+CURRENTLOWESTSMELLRANGE = SMELLRANGE*10;
+CURRENTHIGHESTHEARRANGE = 0;
+CURRENTLOWESTHEARRANGE = HEARRANGE*10;
+CURRENTHIGHESTHORIZONTALMOVEMENT = 0;
+CURRENTLOWESTHORIZONTALMOVEMENT = HORIZONTALMOVEMENT*10;
+CURRENTHIGHESTVERTICALMOVEMENT = 0;
+CURRENTLOWESTVERTICALMOVEMENT = VERTICALMOVEMENT*10;
+
+//Filters
+SELECTIONFILTER = "currentCreature.startinglife>MINSTARTINGLIFE&&currentCreature.widthsize>(WIDTHSIZE-5)&&currentCreature.heightsize>(HEIGHTSIZE-5)";
+
+function removeItem(target,array){
+	var targetId = "#"+target.id;
+	removeFromArrayList(array,targetId);
+	//removeDrop(target);
+	var class = $(targetId).attr("class").split(" ")[0];
+	$(targetId).removeClass(class).addClass("hit"+class);
+	$(targetId).fadeOut(1000,function(){$(targetId).remove()});
+}
+
+function createItemObject(type){
+	switch(type){
+		case "food":
+		case "bait":
+		case "bomb":
+		case "flag":
+		case "gatherpoint":
+			var array = DROPLIST;
+		break;
+		default:
+			var array = DROPLIST;
+		break;
+	}
+	switch(type){
+		case "food":
+			var name = "Food";
+			var sightrange = 20;
+			var smellrange = 10;
+			var hearrange = 0;
+		break;
+		case "bait":
+			var name = "Bait";
+			var sightrange = 5;
+			var smellrange = 30;
+			var hearrange = 5;
+		break;
+		case "bomb":
+			var name = "Bomb";
+			var sightrange = 5;
+			var smellrange = 1;
+			var hearrange = 2;
+		break;
+		case "flag":
+			var name = "Flag";
+			var sightrange = 10;
+			var smellrange = 0;
+			var hearrange = 5;
+		break;
+		case "gatherpoint":
+			var name = "Gatherpoint";
+			var sightrange = 10;
+			var smellrange = 10;
+			var hearrange = 10;
+		break;
+		default:
+			var name = "Unknown";
+			var sightrange = 0;
+			var smellrange = 0;
+			var hearrange = 0;
+		break;
+	}
+	if(array == DROPLIST){
+		DROPCOUNTER++;
+		var id = "dropped"+DROPCOUNTER;
+	}
+	var itemObject = jQuery.parseJSON('{"id":"'+id+'","name":"'+name+'","left":'+80+',"top":'+10+',"sightrange":'+sightrange+',"smellrange":'+smellrange+',"hearrange":'+hearrange+'}');
+	return itemObject
+}
+
+function spreadDrops(class){
+	if (FIXEDSPREADQTY) {
+		var randomCount = SPREADQTY;
+	}else{
+		var randomCount = Math.floor(Math.random() * SPREADQTY + 1);
+	}
+	for(var i=0;i<randomCount;i++){
+		TARGETTOP = Math.floor(Math.random()*$("#field").innerHeight());
+		TARGETLEFT = Math.floor(Math.random()*$("#field").innerWidth());
+		var oldDropNumber = DROPCOUNTER;
+		addToArrayList(DROPLIST,class);
+		if(class=="gatherpoint"){
+			var updatedDropNumber=DROPCOUNTER;
+			while(oldDropNumber == updatedDropNumber)//just in case the drop wasnt updated properly
+			{
+				updatedDropNumber=DROPCOUNTER;
+			}
+			
+			var dropId = "#dropped"+updatedDropNumber;
+			if(!COMMANDACTIVETIMEALWAYS){
+				var waittime = prompt("How many seconds do you want it to be active?",COMMANDACTIVETIME/1000);
+				waittime*=1000;
+			}else{
+				var waittime = COMMANDACTIVETIME;
+			}
+			//waittime+=(i*100);
+			window.setTimeout(function(){
+				removeFromArrayList(DROPLIST,dropId);
+					$(".gatherpoint").fadeOut(1000,function(){$(".gatherpoint").remove()});
+			},waittime);//alert("dropid: "+dropId);
+		}
+	}
+}
+function overlapDrop(me,target){
+	var class = $("#"+target.id).attr("class").split(" ")[0];
+	if(class!="flag"&&class!="gatherpoint"){
+		var index = findObjectIdInArray(DROPLIST,target.id);
+		//removeFromArrayList(DROPLIST,index);
+		DROPLIST.splice(index,1);
+	}
+	switch(class){
+		case "bait":
+		removeDrop(target);
+		break;
+		case "food":
+		removeDrop(target);
+		break;
+		case "bomb":
+		removeDrop(target);
+		killUnit(me);
+		break;
+		case "flag":
+		break;
+		case "arrow":
+		removeDrop(target);
+		break;
+	}
+}
+function removeDrop(target){
+	if(typeof target != "object"){
+		var targetId = target;
+	}else{
+		var targetId = "#"+target.id;
+	}
+	var class = $(targetId).attr("class").split(" ")[0];
+	$(targetId).removeClass(class).addClass("hit"+class);
+	$(targetId).fadeOut(1000,function(){$(targetId).remove()});
+}
+
+function findObjectIdInArray(array,id){
+	var i = 0;
+	while(i<array.length && array[i].id!=id){
+		i++
+	}
+	return i
+}
+
+function getObjectByIdFromArray(id,array){
+	var i = findObjectIdInArray(array,id);
+	var object = array[i];
+	return object	
+}
+function makeBoundedTo(position,dimValue,dimObject,whichDim){
+	if(whichDim=="height"){
+		var dimHeight = $(dimObject).innerHeight();
+		var boundValue = makeBounded(position,0,dimHeight-dimValue,0,dimHeight-dimValue);
+	}else{
+		var dimWidth = $(dimObject).innerWidth();
+		var boundValue = makeBounded(position,0,dimWidth-dimValue,0,dimWidth-dimValue);
+	}
+	return boundValue
+}
+function addToArrayList(array,class){
+	if(array == DROPLIST){
+		//DROPCOUNTER++;
+		//var dropId = "dropped"+DROPCOUNTER;		
+		//DROPLIST.push("#"+dropId);
+		var drop = createItemObject(class);
+
+		$("#field").append('<div id="'+drop.id+'" class="'+class+'"></div>');
+		var widthsize = $("#"+drop.id).outerWidth();
+		var heightsize = $("#"+drop.id).outerHeight();
+		var positionLeft = makeBoundedTo(TARGETLEFT,widthsize,"#field","width");
+		var positionTop = makeBoundedTo(TARGETTOP,heightsize,"#field","height");
+		drop.left = positionLeft;
+		drop.top = positionTop;
+		
+		array.push(drop);
+
+		$("#"+drop.id).css({"left":drop.left+'px',"top":drop.top+'px'});
+	}else{
+		alert("Error: Could not find array!");
+	}
+}
+
+function removeFromArrayList(array,value){
+	var index=jQuery.inArray(value,array);
+	array.splice(index,1);
+}
+
+function getRandomFromArray(array){
+	var randomIndex = Math.floor(Math.random()*array.length);
+	var chosenValue = array[randomIndex];
+	return chosenValue;
+}
+function getVariation(base,offset,method){
+	var offset = offset*2;
+	offset = Math.round(Math.random()*offset)-(offset/2);
+	if(method == "relative"){
+		var result = Math.round(base * ((100+offset)/100));
+	}else{
+		var result = Math.round(base+offset);
+	}
+	return result;	
+}
+function makeBounded(value,minvalue,maxvalue,minlimit,maxlimit){
+	if(value == null){value=0};
+	if(value <= minlimit){value = minvalue;}
+	if(value>=maxlimit){value=maxvalue;}
+	return value;
+}
+function showMessage(title,message,type){
+	var pn_options = {
+		pnotify_title: title,
+		pnotify_text: message,
+		pnotify_addclass: type,
+		pnotify_notice_icon: "ui-icon ui-icon-circle-arrow-e",
+		pnotify_nonblock: false,
+		pnotify_closer: true,
+		pnotify_history: false,
+		pnotify_nonblock_opacity: .2
+	}
+	
+	// This notice is used as a tooltip.
+	tooltip = $.pnotify({
+		pnotify_title: title,
+		pnotify_text: message,
+		pnotify_addclass: type,
+		pnotify_hide: false,
+		pnotify_closer: true,
+		pnotify_history: false,
+		pnotify_animate_speed: 100,
+		pnotify_width: '150px',
+		pnotify_opacity: .9,
+		pnotify_notice_icon: "ui-icon ui-icon-comment",
+		// Setting stack to false causes Pines Notify to ignore this notice when positioning.
+		pnotify_stack: false,
+		/*pnotify_after_init: function(pnotify){
+			// Remove the notice if the user mouses over it.
+			pnotify.mouseout(function(){
+				pnotify.pnotify_remove();
+			});
+		},*/
+		pnotify_before_open: function(pnotify){
+			// This prevents the notice from displaying when it's created.
+			pnotify.pnotify({
+				pnotify_before_open: null
+			});
+			return false;
+		}
+	});
+
+	switch(type){
+		case "tooltip":
+			var pn_options = tooltip;
+			tooltip.pnotify_display();
+		break;
+		default:
+			pn_options.pnotify_notice_icon = "ui-icon ui-icon-circle-arrow-e";
+		break;
+	}
+	pn_options.pnotify_addclass = type;
+	//$.pnotify(pn_options);
+}
+
+
+/*creation*/
+function createUnit(aOverlapTimeout,aLifeValue,aPositionLeft,aPositionLeftOffset,aPositionRight,aPositionRightOffset,aSightRange,aSmellRange,aHearRange,aVerticalMovement,aHorizontalMovement,aRedValue,aGreenValue,aBlueValue,aWidthSize,aHeightSize,aGenerationNumber,aParent1,aParent2){
+	//creaturenumber
+	CREATURESCREATED++;
+	var creatureid = CREATURESCREATED;
+	var overlaptimeout=aOverlapTimeout;
+	//life
+	var life = getVariation(aLifeValue,LIFESTEP,"relative"); //ms
+	var startinglife = life;
+	if(startinglife > HIGHESTSTARTINGLIFE){HIGHESTSTARTINGLIFE = startinglife;}
+	if(startinglife < LOWESTSTARTINGLIFE){LOWESTSTARTINGLIFE = startinglife;}
+	//birthspot
+	var positionleft = getVariation(aPositionLeft,aPositionLeftOffset,"absolute");
+	var positiontop = getVariation(aPositionRight,aPositionRightOffset,"absolute");
+	
+	//sight
+	var sightrange = getVariation(aSightRange,SIGHTRANGESTEP,"absolute");//aSightRange;
+	if(sightrange > HIGHESTSIGHTRANGE){
+		HIGHESTSIGHTRANGE = sightrange;
+	}else if(sightrange < LOWESTSIGHTRANGE){
+		LOWESTSIGHTRANGE = sightrange;
+	}
+	//smell
+	var smellrange = getVariation(aSmellRange,SMELLRANGESTEP,"absolute");//aSightRange;
+	if(smellrange > HIGHESTSMELLRANGE){
+		HIGHESTSMELLRANGE = smellrange;
+	}else if(smellrange < LOWESTSMELLRANGE){
+		LOWESTSMELLRANGE = smellrange;
+	}
+	//hear
+	var hearrange = getVariation(aHearRange,HEARRANGESTEP,"absolute");//aSightRange;
+	if(hearrange > HIGHESTSIGHTRANGE){
+		HIGHESTHEARRANGE = hearrange;
+	}else if(hearrange < LOWESTHEARRANGE){
+		LOWESTHEARRANGE = hearrange;
+	}
+	//movement
+	///Up
+	///Down
+	var verticalmovement = getVariation(aVerticalMovement,MOVEMENTVARIATIONSTEP,"absolute");
+	if(verticalmovement > HIGHESTVERTICALMOVEMENT){
+		HIGHESTVERTICALMOVEMENT = verticalmovement;
+	}else if(verticalmovement < LOWESTVERTICALMOVEMENT){
+		LOWESTVERTICALMOVEMENT = verticalmovement;
+	}
+	///Left
+	///Right
+	var horizontalmovement = getVariation(aHorizontalMovement,MOVEMENTVARIATIONSTEP,"absolute");
+	if(horizontalmovement > HIGHESTHORIZONTALMOVEMENT){
+		HIGHESTHORIZONTALMOVEMENT = horizontalmovement;
+	}else if(horizontalmovement < LOWESTHORIZONTALMOVEMENT){
+		LOWESTHORIZONTALMOVEMENT = horizontalmovement;
+	}
+
+	
+	//color
+	var redvalue = getVariation(aRedValue,COLORVARIATIONSTEP,"absolute");
+	redvalue = makeBounded(redvalue,0,255,0,255);
+	var greenvalue = getVariation(aGreenValue,COLORVARIATIONSTEP,"absolute");
+	greenvalue = makeBounded(greenvalue,0,255,0,255);
+	var bluevalue = getVariation(aBlueValue,COLORVARIATIONSTEP,"absolute");
+	bluevalue = makeBounded(bluevalue,0,255,0,255);
+	
+	//size
+	///width
+	var widthsize = getVariation(aWidthSize,SIZESTEP,"absolute");
+	if(widthsize > HIGHESTWIDTHSIZE){
+		HIGHESTWIDTHSIZE = widthsize;
+	}else if(widthsize < LOWESTWIDTHSIZE){
+		LOWESTWIDTHSIZE = widthsize;
+	}
+	///height
+	var heightsize = getVariation(aHeightSize,SIZESTEP,"absolute");
+	if(heightsize > HIGHESTHEIGHTSIZE){
+		HIGHESTHEIGHTSIZE = heightsize;
+	}else if(heightsize < LOWESTHEIGHTSIZE){
+		LOWESTHEIGHTSIZE = heightsize;
+	}
+
+	positionleft = makeBoundedTo(positionleft,widthsize,"#field","width");
+	positiontop = makeBoundedTo(positiontop,heightsize,"#field","height");
+
+	//generation
+	var generationnumber = aGenerationNumber+1;
+	var parent1 = aParent1;
+	var parent2 = aParent2;
+	if(generationnumber>TOTALGENERATIONS){
+		TOTALGENERATIONS = generationnumber;
+	}
+	//add dominatie/breedingrights
+	//gender
+	var gender = getRandomFromArray(GENDER);
+	//fertillity
+	//food
+	//specials
+	
+	var creature = jQuery.parseJSON('{"id": '+CREATURESCREATED+',"left": '+positionleft+',"top": '+positiontop+',"startinglife": '+startinglife+',"life": '+life+',"sightrange":'+sightrange+',"smellrange":'+smellrange+',"hearrange":'+hearrange+',"target":"'+DEFAULTTARGET+'","verticalmovement":'+verticalmovement+',"horizontalmovement":'+horizontalmovement+',"redvalue":'+redvalue+',"greenvalue":'+greenvalue+',"bluevalue":'+bluevalue+',"widthsize":'+widthsize+',"heightsize":'+heightsize+',"generationnumber":'+generationnumber+',"parent1":"'+parent1+'","parent2":"'+parent2+'","gender":"'+gender+'","overlaptimeout":'+overlaptimeout+'}');
+	CREATURELIST.push(creature);
+	$("#field").append('<div id="'+creatureid+'" class="creature" style="left:'+positionleft+'px;top:'+positiontop+'px;height:'+heightsize+'px;width:'+widthsize+'px;background-color:rgb('+redvalue+','+greenvalue+','+bluevalue+');"><div class="fitness"><\/div><div class="ranges"><\/div><\/div>');
+	if(gender=="male"){$("#"+creatureid).css({border: "1px solid aqua"});}
+	if(gender=="female"){$("#"+creatureid).css({border: "1px solid hotpink"});}
+
+}
+function create(){
+	TOTALSPBIRTH++;
+	var horizontalCenter = $("#field").innerWidth()/2;
+	var verticalCenter = $("#field").innerHeight()/2;
+	createUnit(100,LIFEVALUE,horizontalCenter,horizontalCenter,verticalCenter,verticalCenter,SIGHTRANGE,SMELLRANGE,HEARRANGE,VERTICALMOVEMENT,HORIZONTALMOVEMENT,REDVALUE,GREENVALUE,BLUEVALUE,WIDTHSIZE,HEIGHTSIZE,0,CREATOR,CREATOR);
+}
+function createchild(parent){
+	TOTALSPBIRTH++;
+	var positionLeft = parent.left;
+	var positionTop = parent.top;
+	var offsetTop = 3;
+	var offsetLeft = 3;
+	createUnit(200,parseInt(parent.startinglife),positionLeft,offsetLeft,positionTop,offsetTop,parseInt(parent.sightrange),parent.smellrange,parent.hearrange,parseInt(parent.verticalmovement),parseInt(parent.horizontalmovement),parseInt(parent.redvalue),parseInt(parent.greenvalue),parseInt(parent.bluevalue),parseInt(parent.widthsize),parseInt(parent.heightsize),parseInt(parent.generationnumber),parent.id,"Creator");
+}
+function breed(parent1,parent2){
+	TOTALDPBIRTH++;
+	parent.startinglife = (parseInt(parent1.startinglife)+parseInt(parent2.startinglife))/2;
+	var sightrange = (parseInt(parent1.sightrange)+parseInt(parent2.sightrange))/2;
+	var smellrange = (parseInt(parent1.smellrange)+parseInt(parent2.smellrange))/2;
+	var hearrange = (parseInt(parent1.hearrange)+parseInt(parent2.hearrange))/2;
+	parent.verticalmovement = (parseInt(parent1.verticalmovement)+parseInt(parent2.verticalmovement))/2;
+	parent.horizontalmovement = (parseInt(parent1.horizontalmovement)+parseInt(parent2.horizontalmovement))/2;
+	parent.redvalue = (parseInt(parent1.redvalue)+parseInt(parent2.redvalue))/2;
+	parent.greenvalue = (parseInt(parent1.greenvalue)+parseInt(parent2.greenvalue))/2;
+	parent.bluevalue = (parseInt(parent1.bluevalue)+parseInt(parent2.bluevalue))/2;
+	parent.widthsize = (parseInt(parent1.widthsize)+parseInt(parent2.widthsize))/2;
+	parent.heightsize = (parseInt(parent1.heightsize)+parseInt(parent2.heightsize))/2;
+	if(parseInt(parent1.generationnumber)<parseInt(parent2.generationnumber)){
+		parent.generationnumber = parseInt(parent2.generationnumber);
+	}else{
+		parent.generationnumber = parseInt(parent1.generationnumber);
+	}
+	
+	var positionLeft1 = parent1.left;
+	var positionTop1 = parent1.top;
+	var positionLeft2 = parent2.left;
+	var positionTop2 = parent2.top;
+	var positionLeft = Math.round((positionLeft1+positionLeft2)/2);
+	var positionTop = Math.round((positionTop1+positionTop2)/2);
+	var offsetTop = 1;
+	var offsetLeft = 1;
+
+	createUnit(50,parent.startinglife,positionLeft,offsetLeft,positionTop,offsetTop,sightrange,smellrange,hearrange,parent.verticalmovement,parent.horizontalmovement,parent.redvalue,parent.greenvalue,parent.bluevalue,parent.widthsize,parent.heightsize,parent.generationnumber,parent1.id,parent2.id);
+}
+/*controls*/
+function pause(){
+	if(loopoflifeInterval == -1){
+		loopoflifeInterval = setInterval("loopoflife()",LOOPDELAY);
+		$("#pause").html("Pause");
+	}else{
+		clearInterval(loopoflifeInterval);
+		loopoflifeInterval = -1;
+		$("#pause").html("Resume");
+	}
+}
+
+function addUnit(){
+	var parent = getRandomFromArray(CREATURELIST);
+	createchild(parent);
+}
+
+function deleteUnit(){
+	var currentCreature = getRandomFromArray(CREATURELIST);
+	var index=jQuery.inArray(currentCreature,CREATURELIST);
+	CREATURELIST.splice(index,1);
+	$("#"+currentCreature.id).css({"backgroundColor": "rgb(255,255,0)"}).fadeOut(2000,function(){$(this).remove()});
+}
+
+function killUnit(killedUnit){
+	var index=jQuery.inArray(killedUnit,CREATURELIST);
+	CREATURELIST.splice(index,1);
+	$("#"+killedUnit.id).css({backgroundColor:"rgb(255,0,0)"}).fadeOut(4000,function(){$(this).remove()});
+}
+/*mode*/
+//survival
+//team
+//scoring
+
+/*stats*/
+function checkCurrentStats(){
+	CURRENTHIGHESTSTARTINGLIFE = 0;
+	CURRENTLOWESTSTARTINGLIFE = 1000;
+	CURRENTHIGHESTWIDTHSIZE = 0;
+	CURRENTLOWESTWIDTHSIZE = WIDTHSIZE*10;
+	CURRENTHIGHESTHEIGHTSIZE = 0;
+	CURRENTLOWESTHEIGHTSIZE = HEIGHTSIZE*10;
+	CURRENTHIGHESTSIGHTRANGE = 0;
+	CURRENTLOWESTSIGHTRANGE = SIGHTRANGE*10;
+	CURRENTHIGHESTSMELLRANGE = 0;
+	CURRENTLOWESTSMELLRANGE = SMELLRANGE*10;
+	CURRENTHIGHESTHEARRANGE = 0;
+	CURRENTLOWESTHEARRANGE = HEARRANGE*10;
+	CURRENTHIGHESTHORIZONTALMOVEMENT = 0;
+	CURRENTLOWESTHORIZONTALMOVEMENT = HORIZONTALMOVEMENT*10;
+	CURRENTHIGHESTVERTICALMOVEMENT = 0;
+	CURRENTLOWESTVERTICALMOVEMENT = VERTICALMOVEMENT*10;
+	for(i=0;i<CREATURELIST.length;i++){
+		currentStats(CREATURELIST[i]);
+	}
+	$.each(CREATURELIST, function(index,creature){
+		$("#" + creature.id+" .fitness").empty();
+		$("#" + creature.id+" .fitness").css({width:function(index,value){return $("#"+creature.id).innerWidth();},height:function(index,value){return $("#"+creature.id).innerHeight();}})
+		
+		var champion = false;
+		
+		if(creature.startinglife==CURRENTHIGHESTSTARTINGLIFE){
+			champion = true;
+			var bordersize = 4;
+			var innerWidth = $("#"+creature.id).deepest().innerWidth()-(2*bordersize);
+			var innerHeight = $("#"+creature.id).deepest().innerHeight()-(2*bordersize);
+			$("#"+creature.id+" .fitness").deepest().append('<div style="width:'+innerWidth+'px;height:'+innerHeight+'px;border:'+bordersize+'px double #CC0000;"></div>');
+		}
+		if(creature.sightrange==CURRENTHIGHESTSIGHTRANGE){
+			champion = true;
+			var bordersize = 2;
+			var innerWidth = $("#"+creature.id).deepest().innerWidth()-(2*bordersize);
+			var innerHeight = $("#"+creature.id).deepest().innerHeight()-(2*bordersize);
+			$("#"+creature.id+" .fitness").deepest().append('<div style="width:'+innerWidth+'px;height:'+innerHeight+'px;border:'+bordersize+'px solid black;"></div>');
+		}
+		if(creature.sightrange==CURRENTHIGHESTSMELLRANGE){
+			champion = true;
+			var bordersize = 2;
+			var innerWidth = $("#"+creature.id).deepest().innerWidth()-(2*bordersize);
+			var innerHeight = $("#"+creature.id).deepest().innerHeight()-(2*bordersize);
+			$("#"+creature.id+" .fitness").deepest().append('<div style="width:'+innerWidth+'px;height:'+innerHeight+'px;border:'+bordersize+'px solid fuchsia;"></div>');
+		}
+		if(creature.sightrange==CURRENTHIGHESTHEARRANGE){
+			champion = true;
+			var bordersize = 2;
+			var innerWidth = $("#"+creature.id).deepest().innerWidth()-(2*bordersize);
+			var innerHeight = $("#"+creature.id).deepest().innerHeight()-(2*bordersize);
+			$("#"+creature.id+" .fitness").deepest().append('<div style="width:'+innerWidth+'px;height:'+innerHeight+'px;border:'+bordersize+'px solid orange;"></div>');
+		}
+		/*if (champion) {
+			var bordersize = 4;
+			var innerWidth = $("#"+creature.id).deepest().innerWidth()-(2*bordersize);
+			var innerHeight = $("#"+creature.id).deepest().innerHeight()-(2*bordersize);
+			$("#"+creature.id+" .fitness").deepest().append('<div style="width:'+innerWidth+'px;height:'+innerHeight+'px;border:'+bordersize+'px groove yellow;"></div>');
+		}*/
+	});
+	alert("Startinglife: "+CURRENTHIGHESTSTARTINGLIFE+"/"+
+	CURRENTLOWESTSTARTINGLIFE+"\nWidthsize: "+
+	CURRENTHIGHESTWIDTHSIZE+"/"+
+	CURRENTLOWESTWIDTHSIZE+"\nHeightsize: "+
+	CURRENTHIGHESTHEIGHTSIZE+"/"+
+	CURRENTLOWESTHEIGHTSIZE+"\nSightrange: "+
+	CURRENTHIGHESTSIGHTRANGE+"/"+
+	CURRENTLOWESTSIGHTRANGE+"\nSmellrange: "+
+	CURRENTHIGHESTSMELLRANGE+"/"+
+	CURRENTLOWESTSMELLRANGE+"\nHearrange: "+
+	CURRENTHIGHESTHEARRANGE+"/"+
+	CURRENTLOWESTHEARRANGE+"\nH-movement: "+
+	CURRENTHIGHESTHORIZONTALMOVEMENT+"/"+
+	CURRENTLOWESTHORIZONTALMOVEMENT+"\nV-movement: "+
+	CURRENTHIGHESTVERTICALMOVEMENT+"/"+
+	CURRENTLOWESTVERTICALMOVEMENT);
+}
+
+function currentStats(creature){
+	var startinglife = creature.startinglife;
+	if(startinglife > CURRENTHIGHESTSTARTINGLIFE){CURRENTHIGHESTSTARTINGLIFE = startinglife;}
+	if(startinglife < CURRENTLOWESTSTARTINGLIFE){CURRENTLOWESTSTARTINGLIFE = startinglife;}
+	
+	//sight
+	var sightrange = creature.sightrange;
+	if(sightrange > CURRENTHIGHESTSIGHTRANGE){
+		CURRENTHIGHESTSIGHTRANGE = sightrange;
+	}if(sightrange < CURRENTLOWESTSIGHTRANGE){
+		CURRENTLOWESTSIGHTRANGE = sightrange;
+	}
+	//smell
+	var smellrange = creature.smellrange;
+	if(smellrange > CURRENTHIGHESTSMELLRANGE){
+		CURRENTHIGHESTSMELLRANGE = smellrange;
+	}if(smellrange < CURRENTLOWESTSMELLRANGE){
+		CURRENTLOWESTSMELLRANGE = smellrange;
+	}
+	//hear
+	var hearrange = creature.hearrange;
+	if(hearrange > CURRENTHIGHESTSIGHTRANGE){
+		CURRENTHIGHESTHEARRANGE = hearrange;
+	}if(hearrange < CURRENTLOWESTHEARRANGE){
+		CURRENTLOWESTHEARRANGE = hearrange;
+	}
+	//movement
+	///Up
+	///Down
+	var verticalmovement = creature.verticalmovement;
+	if(verticalmovement > CURRENTHIGHESTVERTICALMOVEMENT){
+		CURRENTHIGHESTVERTICALMOVEMENT = verticalmovement;
+	}if(verticalmovement < CURRENTLOWESTVERTICALMOVEMENT){
+		CURRENTLOWESTVERTICALMOVEMENT = verticalmovement;
+	}
+	///Left
+	///Right
+	var horizontalmovement = creature.horizontalmovement;
+	if(horizontalmovement > CURRENTHIGHESTHORIZONTALMOVEMENT){
+		CURRENTHIGHESTHORIZONTALMOVEMENT = horizontalmovement;
+	}if(horizontalmovement < CURRENTLOWESTHORIZONTALMOVEMENT){
+		CURRENTLOWESTHORIZONTALMOVEMENT = horizontalmovement;
+	}
+	
+	//size
+	///width
+	var widthsize = creature.widthsize;
+	if(widthsize > CURRENTHIGHESTWIDTHSIZE){
+		CURRENTHIGHESTWIDTHSIZE = widthsize;
+	}if(widthsize < CURRENTLOWESTWIDTHSIZE){
+		CURRENTLOWESTWIDTHSIZE = widthsize;
+	}
+	///height
+	var heightsize = creature.heightsize;
+	if(heightsize > CURRENTHIGHESTHEIGHTSIZE){
+		CURRENTHIGHESTHEIGHTSIZE = heightsize;
+	}if(heightsize < CURRENTLOWESTHEIGHTSIZE){
+		CURRENTLOWESTHEIGHTSIZE = heightsize;
+	}
+}
+
+function stats(){
+$("#totalcreatedcreaturesstat").html(CREATURESCREATED);
+$("#totallivingcreaturesstat").html(CREATURELIST.length);
+$("#totaldrops").html(DROPCOUNTER);
+$("#totalactivedrops").html(DROPLIST.length);
+$("#totalspbirth").html(TOTALSPBIRTH);
+$("#totaldpbirth").html(TOTALDPBIRTH);
+$("#totalgenerationsstat").html(TOTALGENERATIONS);
+
+$("#higheststartinglife").html(HIGHESTSTARTINGLIFE);
+$("#loweststartinglife").html(LOWESTSTARTINGLIFE);
+$("#highestwidthsize").html(HIGHESTWIDTHSIZE);
+$("#lowestwidthsize").html(LOWESTWIDTHSIZE);
+$("#highestheightsize").html(HIGHESTHEIGHTSIZE);
+$("#lowestheightsize").html(LOWESTHEIGHTSIZE);
+$("#highesthorizontalmovement").html(HIGHESTHORIZONTALMOVEMENT);
+$("#lowesthorizontalmovement").html(LOWESTHORIZONTALMOVEMENT);
+$("#highestverticalmovement").html(HIGHESTVERTICALMOVEMENT);
+$("#lowestverticalmovement").html(LOWESTVERTICALMOVEMENT);
+$("#highestsightrange").html(HIGHESTSIGHTRANGE);
+$("#lowestsightrange").html(LOWESTSIGHTRANGE);
+$("#highestsmellrange").html(HIGHESTSMELLRANGE);
+$("#lowestsmellrange").html(LOWESTSMELLRANGE);
+$("#highesthearrange").html(HIGHESTHEARRANGE);
+$("#lowesthearrange").html(LOWESTHEARRANGE);
+
+}
+
+function overlaps(parent1,parent2){
+	if(parent1.gender=="male"&&parent2.gender=="female" || parent1.gender=="female"&&parent2.gender=="male"){
+		breed(parent1,parent2);
+	}else{
+		//no mating possible
+		var parent1volume = parseInt(parent1.widthsize)*parseInt(parent1.heightsize);
+		var parent2volume = parseInt(parent2.widthsize)*parseInt(parent2.heightsize);
+		//determining survivor and victim
+		if(parent1volume < parent2volume){var victimCreature = parent1;var survivorCreature = parent2;}else{var victimCreature = parent2;var survivorCreature = parent1;}
+		//removing and killing victim
+		killUnit(victimCreature);
+		//powerup survivor
+		var newWidthSize = parseInt(survivorCreature.widthsize)+1;
+		var newHeightSize = parseInt(survivorCreature.heightsize)+1;
+		$("#"+survivorCreature.id).css({width:newWidthSize,height: newHeightSize});
+		//feedback to object with new updated dimensions
+		survivorCreature.widthsize = newWidthSize;
+		survivorCreature.heightsize = newHeightSize;
+	}
+}
+
+function determineDistance(here,target){
+	var currentDropInfo = target;
+
+	var horizontalLeftCreature = Math.abs(here.left-currentDropInfo.left);
+	var horizontalRightCreature = Math.abs((here.left+$("#"+here.id).innerWidth())-currentDropInfo.left);
+	var horizontalLeftDrop = Math.abs(here.left-(currentDropInfo.left+$("#"+target.id).innerWidth()));
+	var horizontalRightDrop = Math.abs((here.left+$("#"+here.id).innerWidth())-(currentDropInfo.left+$("#"+target.id).innerWidth()));
+	
+	var verticalTopCreature = Math.abs(here.top-currentDropInfo.top);
+	var verticalBottomCreature = Math.abs((here.top+$("#"+here.id).innerHeight())-currentDropInfo.top);
+	var verticalTopDrop = Math.abs(here.top-(currentDropInfo.top+$("#"+target.id).innerWidth()));
+	var verticalBottomDrop = Math.abs((here.top+$("#"+here.id).innerHeight())-(currentDropInfo.top+$("#"+target.id).innerHeight()));
+
+	
+	//ini
+	var horizontalOffset = Math.abs(here.left-currentDropInfo.left);
+	var verticalOffset = Math.abs(here.top-currentDropInfo.top);
+	
+	if(horizontalLeftCreature < horizontalRightCreature){
+		if(horizontalLeftCreature < horizontalLeftDrop){
+			if(horizontalLeftCreature < horizontalRightDrop){
+				horizontalOffset = horizontalLeftCreature;
+			}else{
+				horizontalOffset = horizontalRightDrop;
+			}
+		}else{
+			if(horizontalLeftDrop < horizontalRightDrop){
+				horizontalOffset = horizontalLeftDrop;
+			}else{
+				horizontalOffset = horizontalRightDrop;
+			}
+		}
+	}else{
+		if(horizontalRightCreature < horizontalLeftDrop){
+			if(horizontalRightCreature < horizontalRightDrop){
+				horizontalOffset = horizontalRightCreature;
+			}else{
+				horizontalOffset = horizontalRightDrop;
+			}
+		}else{
+			if(horizontalLeftDrop < horizontalRightDrop){
+				horizontalOffset = horizontalLeftDrop;
+			}else{
+				horizontalOffset = horizontalRightDrop;
+			}
+		}
+	}
+	
+	if(verticalTopCreature < verticalBottomCreature){
+		if(verticalTopCreature < verticalTopDrop){
+			if(verticalTopCreature < verticalBottomDrop){
+				verticalOffset = verticalTopCreature;
+			}else{
+				verticalOffset = verticalBottomDrop;
+			}
+		}else{
+			if(verticalTopDrop < verticalBottomDrop){
+				verticalOffset = verticalTopDrop;
+			}else{
+				verticalOffset = verticalBottomDrop;
+			}
+		}
+	}else{
+		if(verticalBottomCreature < verticalTopDrop){
+			if(verticalBottomCreature < verticalBottomDrop){
+				verticalOffset = verticalBottomCreature;
+			}else{
+				verticalOffset = verticalBottomDrop;
+			}
+		}else{
+			if(verticalTopDrop < verticalBottomDrop){
+				verticalOffset = verticalTopDrop;
+			}else{
+				verticalOffset = verticalBottomDrop;
+			}
+		}
+	}
+	
+	var determinedDistance = jQuery.parseJSON('{"id":"'+currentDropInfo.id+'","left":'+currentDropInfo.left+',"top":'+currentDropInfo.top+',"horizontaloffset":'+horizontalOffset+',"verticaloffset":'+verticalOffset+',"sightrange":'+target.sightrange+',"smellrange":'+target.smellrange+',"hearrange":'+target.hearrange+'}');
+	return determinedDistance
+}
+
+function decideMove(creature){
+	//var creatureId = "#"+creature.id;
+	//var position = $(creatureId).position();
+	//if(position != null){
+		var decidedMove = jQuery.parseJSON('{"left": '+creature.left+',"top": '+creature.top+'}');
+		var target = jQuery.parseJSON('{"id": "testingDummy","left": '+999+',"top": '+999+',"distance": '+1998+'}');
+		var targetsAvailable = false;
+		/*var tempCreatureId = CREATURELIST[0].id;
+		var tempPos = $("#"+tempCreatureId).position();
+		//if (tempPos != null) {
+			var determinedDistance = jQuery.parseJSON('{"id":"' + tempCreatureId + '","left":' + tempPos.left + ',"top":' + tempPos.top + ',"horizontaloffset":' + 1 + ',"verticaloffset":' + 1 + ',"sightrange":' + CREATURELIST[0].sightrange + ',"smellrange":' + CREATURELIST[0].smellrange + ',"hearrange":' + CREATURELIST[0].hearrange + '}');
+		//}
+
+*/		
+		if(DROPLIST.length>0 ){targetsAvailable=true;}
+		
+		if(targetsAvailable){		
+			//var distance = 2000;
+			var horizontalOffset=9999;
+			var verticalOffset=9999;
+			if (DROPLIST.length > 0){
+				for (var i = 0; i < DROPLIST.length; i++) {
+					var currentDrop = DROPLIST[i];
+					var determinedDistance = determineDistance(creature, currentDrop);
+					var verticalOffset2 = determinedDistance.verticaloffset;
+					var horizontalOffset2 = determinedDistance.horizontaloffset;
+					var distanceToTarget = horizontalOffset2 + verticalOffset2;
+					
+					if (distanceToTarget < target.distance) {//check if the new drop is closer to the previous closest if so replace target to new drop
+						target.id = determinedDistance.id;
+						target.left = determinedDistance.left
+						target.top = determinedDistance.top
+						target.distance = distanceToTarget;
+						verticalOffset = determinedDistance.verticaloffset;
+						horizontalOffset = determinedDistance.horizontaloffset;
+					}
+				}
+			}
+			/*if (CREATURELIST.length > 1){
+				for (var i = 0; i < CREATURELIST.length; i++) {
+					var currentDrop = CREATURELIST[i];
+					var determinedDistance = determineDistance(creature, currentDrop);$.debug(determinedDistance);
+					var verticalOffset2 = determinedDistance.verticaloffset;
+					var horizontalOffset2 = determinedDistance.horizontaloffset;
+					var distanceToTarget = horizontalOffset2 + verticalOffset2;
+					
+					if (distanceToTarget < target.distance) {//check if the new drop is closer to the previous closest if so replace target to new drop
+						target.id = determinedDistance.id;
+						target.left = determinedDistance.left
+						target.top = determinedDistance.top
+						target.distance = distanceToTarget;
+						verticalOffset = determinedDistance.verticaloffset;
+						horizontalOffset = determinedDistance.horizontaloffset;
+					}
+				}
+			}*/
+			var spotted =false;
+			if(((horizontalOffset-determinedDistance.sightrange) <= creature.sightrange && (verticalOffset-determinedDistance.sightrange) <= creature.sightrange) ){var spotted =true;}
+			else if(((horizontalOffset-determinedDistance.smellrange) <= creature.smellrange && (verticalOffset-determinedDistance.smellrange) <= creature.smellrange)){var spotted =true;}
+			else if (((horizontalOffset-determinedDistance.hearrange) <= creature.hearrange && (verticalOffset-determinedDistance.hearrange) <= creature.hearrange)){var spotted =true;}
+			if(spotted){//something is spotted
+				if(creature.left!=target.left){
+					if(creature.left>target.left){
+						//move horizontal left
+						decidedMove.left = creature.left-parseInt(creature.horizontalmovement);
+					}else{
+						//move horizontal right
+						decidedMove.left = creature.left+parseInt(creature.horizontalmovement);
+					}
+				}
+				if(creature.top!=target.top){
+					if(creature.top>target.top){
+						//move vertical up
+						decidedMove.top = creature.top-parseInt(creature.verticalmovement);
+					}else{
+						//move vertical down
+						decidedMove.top = creature.top+parseInt(creature.verticalmovement);
+					}
+				}
+				creature.target = "#"+target.id;
+			}else{//there is a target but can't be seen so move on like usual
+				decidedMove.left = getVariation(creature.left,creature.horizontalmovement,"absolute");
+				decidedMove.top = getVariation(creature.top,creature.verticalmovement,"absolute");
+				creature.target = DEFAULTTARGET;
+			}	
+		}else{//nothing to see move on like usual
+			decidedMove.left = getVariation(creature.left,creature.horizontalmovement,"absolute");
+			decidedMove.top = getVariation(creature.top,creature.verticalmovement,"absolute");
+			creature.target = DEFAULTTARGET;
+		}
+		var newHorizontalPos = decidedMove.left;
+		var newVerticalPos = decidedMove.top;
+
+		var width = $("#"+creature.id).outerWidth();
+		var height = $("#"+creature.id).outerHeight();
+		newHorizontalPos = makeBoundedTo(newHorizontalPos,width,"#field","width");
+		newVerticalPos = makeBoundedTo(newVerticalPos,height,"#field","height");
+
+		creature.left = newHorizontalPos;
+		creature.top = newVerticalPos;
+		$("#"+creature.id).css({left: creature.left+'px',top: creature.top+'px'});
+		if(DROPLIST.length>0){
+			var overlapping = $("#"+creature.id).overlaps("#"+target.id);
+			if(overlapping){
+				overlapDrop(creature,target);
+			}
+		}
+	//}
+}
+
+/*loop of life*/
+function loopoflife(){
+//movement
+var creatures = CREATURELIST.length;
+	for(i=0;i<creatures;i++){
+		var currentCreature = CREATURELIST[i];
+		if(currentCreature != undefined){
+			var currentCreatureId = "#"+currentCreature.id;
+	
+			//move
+			decideMove(currentCreature);
+			
+			//reproduction
+			var j = 0;
+			do{
+				var currentCreatureCheck = CREATURELIST[j];
+				var currentCreatureCheckId = "#"+currentCreatureCheck.id;
+				var overlapping = $(currentCreatureId).overlaps(currentCreatureCheckId);
+				if(currentCreature.overlaptimeout<=0){
+					if(currentCreature.gender=="male"){$(currentCreatureId).css({border: "2px solid aqua"});}
+					if(currentCreature.gender=="female"){$(currentCreatureId).css({border: "2px solid hotpink"});}
+					
+					if(overlapping && currentCreatureCheck.overlaptimeout<=0 ){
+						overlaps(currentCreature,currentCreatureCheck);
+						currentCreature.overlaptimeout = 400;
+						j=CREATURELIST.length+1;
+					}
+				}
+				j++;
+			}
+			while (j<CREATURELIST.length)
+			currentCreature.overlaptimeout--;
+			currentCreature.life--;
+			/*switch(true){
+				case currentCreature.startinglife/currentCreature.life>=10:
+					$(currentCreatureId).css({borderColor: "red"});
+				break;
+				case currentCreature.startinglife/currentCreature.life>=3.6:
+					$(currentCreatureId).css({border: "2px dashed whitesmoke"});
+				break;
+				case currentCreature.startinglife/currentCreature.life>=1.15&&currentCreature.overlaptimeout<=0:
+					$(currentCreatureId).css({borderWidth: "3px",borderStyle: "double"});
+				break;
+				default:
+					if(currentCreature.gender=="male"){$(currentCreatureId).css({border: "2px solid aqua"});}
+					if(currentCreature.gender=="female"){$(currentCreatureId).css({border: "2px solid hotpink"});}
+				break;
+			}*/
+			//killing
+			if(currentCreature.widthsize > $("#field").innerWidth() || currentCreature.heightsize > $("#field").innerHeight()){//kills overgrowns
+				currentCreature.life = 0;
+			}
+			if(currentCreature.life < 0){
+				//if(currentCreature.startinglife>MINSTARTINGLIFE&&currentCreature.widthsize>MINWIDTHSIZE&&currentCreature.heightsize>MINHEIGHTSIZE){
+				if(eval(SELECTIONFILTER)){
+					createchild(currentCreature);
+				}else if(CREATURELIST.length ==1){
+					showMenu("extinction");
+				}
+				var index=jQuery.inArray(currentCreature,CREATURELIST);
+				CREATURELIST.splice(index,1);
+				$(currentCreatureId).css({"backgroundColor": "rgb(128,128,128)"}).fadeOut(2000,function(){$(this).remove()});
+			}
+		}
+	}
+
+//Update stats
+stats();
+}
+function showMenu(which){
+	pause();
+	if(which=="extinction"){
+		$("#field").append('<div id="extinctionscreen" style=""><h4 style="font-size:50px;">POPULATION EXTINCT!</h4><p><a href="javascript:$(\'#extinctionscreen\').remove();generateCreatures();pause();">Remove this screen of shame and try again!</a></p><p><a href="javascript:$(\'#extinctionscreen\').remove();">Remove this screen of shame and let me watch a white space!</a></p></div>');
+	}else{
+		
+	}
+}
+function showRange(object,array,class){
+	var id = object[0].id;
+	var my = getObjectByIdFromArray(id,array);
+	var innerWidth = $("#"+id).innerWidth();
+	var innerHeight = $("#"+id).innerHeight();
+	switch(class){
+		case "sightrange":
+			var output = my.sightrange*2;
+		break;
+		case "smellrange":
+			var output = my.smellrange*2;
+		break;
+		case "hearrange":
+			var output = my.hearrange*2;
+		break;
+	}
+	var width =  output+innerWidth;
+	var height = output+innerHeight;
+	var leftmargin = Math.round(width/2);
+	var topmargin = Math.round(height/2);
+	$("#"+id+" .ranges").append('<div class="'+class+'" style="width:'+width+'px;height:'+height+'px;opacity:0.3;position:absolute;left:50%;top:50%;margin-left:-'+leftmargin+'px;margin-top:-'+topmargin+'px;"></div>');
+
+}
+
+function showCreatureStats(creature){
+	if(typeof creature != "object"){
+		var creatureId = creature;
+	}else{
+		var creatureId = creature.id;
+	}
+	var i = findObjectIdInArray(CREATURELIST,creatureId);
+	
+	//var genderSymbol ='<span class="unicodesymbol">\u2642 <sub>\u2640</sub> \u271F \u271D</span>';
+	if(CREATURELIST[i].gender=="male"){
+		var gender = 'Male<div class="malesymbol"></div>';
+	}else{
+		var gender = 'Female<div class="femalesymbol"></div>';
+	}
+	var age = CREATURELIST[i].startinglife-CREATURELIST[i].life;
+	var parent1 = CREATURELIST[i].parent1;
+	var parent2 = CREATURELIST[i].parent2;
+	if(parent1 != CREATOR){
+		parent1 = "N°"+parent1;
+	}
+	if(parent2 != CREATOR){
+		parent2 = "N°"+parent2;
+	}
+	if(CREATURELIST[i].target != DEFAULTTARGET){
+		var target = $(CREATURELIST[i].target).attr("class").split(" ")[0];
+		target = target.charAt(0).toUpperCase() + target.substr(1);
+	}else{
+		var target = CREATURELIST[i].target;
+	}
+
+	showMessage('Info about creature N°'+creatureId,'<div id="cb'+creatureId+'" style="text-align:center;height:100px;width:100%;"><!--<img src="images/creature.gif" alt="" width="92" height="100" />--></div><table><tr><td align="right">Gender</td><td>'+gender+'</td></tr><tr><td align="right">Life:</td><td>'+CREATURELIST[i].life+'</td></tr><tr><td align="right">Age:</td><td>'+age+'</td></tr><tr><td align="right">Generation:</td><td>'+CREATURELIST[i].generationnumber+'</td></tr><tr><td align="right">Parent1:</td><td>"'+parent1+'"</td></tr><tr><td align="right">Parent2:</td><td>"'+parent2+'"</td></tr><tr><td align="right">Sightrange:</td><td>'+CREATURELIST[i].sightrange+'px</td></tr><tr><td align="right">Smellrange:</td><td>'+CREATURELIST[i].smellrange+'px</td></tr><tr><td align="right">Hearrange:</td><td>'+CREATURELIST[i].hearrange+'px</td></tr><tr><td align="right">Widthsize:</td><td>'+CREATURELIST[i].widthsize+'px</td></tr><tr><td align="right">Heightsize:</td><td>'+CREATURELIST[i].heightsize+'px</td></tr><tr><td align="right">Horizontal Movement:</td><td>'+CREATURELIST[i].horizontalmovement+'px</td></tr><tr><td align="right">Vertical Movement:</td><td>'+CREATURELIST[i].verticalmovement+'px</td></tr><tr><td align="right">Spotted:</td><td>'+target+'</td></tr><tr><td align="right">Next possible event:</td><td>'+CREATURELIST[i].overlaptimeout+'</td></tr></table>',"tooltip");
+	
+	$('#cb'+creatureId).svg({
+			loadURL: 'images/creature2.svg'
+		});
+		var svg = $('#cb'+creatureId).svg('get'); 
+		svg.style('.bodycolour {fill: rgb('+CREATURELIST[i].redvalue+','+CREATURELIST[i].greenvalue+','+CREATURELIST[i].bluevalue+') !important}');
+		/*$('.bodycolour',svg.root()).attr("fill",'rgb('+CREATURELIST[i].redvalue+','+CREATURELIST[i].greenvalue+','+CREATURELIST[i].bluevalue+') !important');
+		$('g .bodycolour',svg.root()).attr("fill",'green !important');
+		$('g .eyelid',svg.root()).attr("fill",'orange !important');*/
+		
+	if(CREATURELIST[i].gender=="male"){
+		$('.malesymbol').svg({
+			loadURL: 'images/Mars_symbol2.svg'
+		});
+		svg.style('.eyelid {fill: aqua}');
+	}else{
+		$('.femalesymbol').svg({
+			loadURL: 'images/Venus_symbol2.svg'
+		});
+		svg.style('.eyelid {fill: hotpink}');
+	}
+	/*$("#cline").css("fill","#FF0000");
+	//$(".body","#cb"+creatureId).css("fill","rgb("+CREATURELIST[i].redvalue+","+CREATURELIST[i].greenvalue+","+CREATURELIST[i].bluevalue+")");
+	//$(".bodycolour").css("fill","#FF00FF");
+	//var svg = $('#cb'+creatureId+' .creaturesvgbody').svg('get'); 
+    //$('.bodycolour', svg.root()).css({"fill": "green"}); */
+	
+	var top = $("#"+creatureId).offset().top;
+	var left = $("#"+creatureId).offset().left;
+	tooltip.css({"top": top+"px","left":left-75+"px"});
+}
+
+/*Clickcontrols*/
+function clickscontroller(){
+	$("#field,.creature").contextMenu("dropmenu", {
+		menuStyle: {
+        	width: '160px'
+		},
+		bindings: {
+			'btn_dropbait': function(t) {
+				//alert('Trigger was '+t.id+'\nAction was Drop food');
+				//trick to get hidden element position
+				$("#jqContextMenu").show();
+				var position = $("#jqContextMenu").position();
+				$("#jqContextMenu").hide();
+				var offset = $("#"+t.id).offset();
+				TARGETLEFT = position.left-offset.left;
+				TARGETTOP = position.top-offset.top;
+				addToArrayList(DROPLIST,"bait");
+			},
+			'btn_dropfood': function(t) {
+				//alert('Trigger was '+t.id+'\nAction was Drop food');
+				//trick to get hidden element position
+				$("#jqContextMenu").show();
+				var position = $("#jqContextMenu").position();
+				$("#jqContextMenu").hide();
+				var offset = $("#"+t.id).offset();
+				TARGETLEFT = position.left-offset.left;
+				TARGETTOP = position.top-offset.top;
+				addToArrayList(DROPLIST,"food");
+			},
+			'btn_dropbomb': function(t) {
+				//alert('Trigger was '+t.id+'\nAction was Drop bomb');
+				$("#jqContextMenu").show();
+				var position = $("#jqContextMenu").position();
+				$("#jqContextMenu").hide();
+				var offset = $("#"+t.id).offset();
+				TARGETLEFT = position.left-offset.left;
+				TARGETTOP = position.top-offset.top;
+				addToArrayList(DROPLIST,"bomb");
+
+			},
+			'btn_dropflag': function(t) {
+				$("#jqContextMenu").show();
+				var position = $("#jqContextMenu").position();
+				$("#jqContextMenu").hide();
+				var offset = $("#"+t.id).offset();
+				TARGETLEFT = position.left-offset.left;
+				TARGETTOP = position.top-offset.top;
+				addToArrayList(DROPLIST,"flag");
+
+			},
+			'btn_droparrow': function(t) {
+				$("#jqContextMenu").show();
+				var position = $("#jqContextMenu").position();
+				$("#jqContextMenu").hide();
+				var offset = $("#"+t.id).offset();
+				TARGETLEFT = position.left-offset.left;
+				TARGETTOP = position.top-offset.top;
+				addToArrayList(DROPLIST,"gatherpoint");
+				var dropId = "#dropped"+DROPCOUNTER;
+				if(!COMMANDACTIVETIMEALWAYS){
+					var waittime = prompt("How many seconds do you want it to be active?",COMMANDACTIVETIME/1000);
+					waittime*=1000;
+				}else{
+					var waittime = COMMANDACTIVETIME;
+				}
+				window.setTimeout(function(){removeFromArrayList(DROPLIST,dropId);$(dropId).fadeOut(1000,function(){$(dropId).remove()});},waittime);
+			},
+			'btn_delete': function(t) {
+				if(t.id!="field"){
+					var drop = getObjectByIdFromArray(t.id,DROPLIST);
+					removeItem(drop,DROPLIST);
+				}
+			},
+			'btn_showinfo': function(t) {
+				//var t = $("*").trigger("getInfo",[this]);
+				//alert($(t).attr("id"));
+				//alert('Trigger was '+t.id+'\nAction was Show info');/**/
+				//$("*").trigger("getInfo");
+				var class = $("#"+t.id).attr("class").split(" ")[0];
+				if( class == "creature"){
+						showCreatureStats(t.id);
+				}else{
+					alert("It's white... and there seems to be some trails...");
+				}
+			},
+			'btn_close': function(t) {
+				//alert('Trigger was '+t.id+'\nAction was Close');
+			}
+		}
+	});
+	$('#pause').click(function () {
+		pause();
+	});
+	$('#addUnit').click(function () {
+		addUnit();
+	});
+	$('#deleteUnit').click(function () {
+		deleteUnit();
+	});
+	$('#spreadBait').click(function () {
+		spreadDrops("bait");
+	});
+	$('#spreadFood').click(function () {
+		spreadDrops("food");
+	});
+	$('#spreadBomb').click(function () {
+		spreadDrops("bomb");
+	});
+	$('#spreadFlag').click(function () {
+		spreadDrops("flag");
+	});
+	$('#spreadGatherpoint').click(function () {
+		spreadDrops("gatherpoint");
+	});
+	$('#checkCurrentStats').click(function () {
+		checkCurrentStats();
+	});
+	$('#generatecreatures').click(function () {
+		generateCreatures();
+	});	$('.creature').live('click',function(event){
+		showCreatureStats(this);
+	});
+	$('.creature,.food,.bait,.flag,.gatherpoint').live('mouseenter',function(event){//maak hier algemene toon range functie van
+		var object = $(this);
+		if($(this).attr("class").split(" ")[0]=="creature"){
+			var array = CREATURELIST;
+		}else{
+			var array = DROPLIST;
+		}
+		showRange(object,array,"sightrange");
+		showRange(object,array,"smellrange");
+		showRange(object,array,"hearrange");
+	});
+	$('.creature,.food,.bait,.flag,.gatherpoint').live('mouseleave',function(event){
+		$("#"+this.id+" .ranges").empty();
+	});
+	$("#inputLoopDelay").blur(function(){
+		//pause() twice so changes take effect without noticable pause
+		pause();
+		LOOPDELAY = parseInt($("#inputLoopDelay").val());
+		MINSTARTINGLIFE = LOOPDELAY;
+		pause();
+	});
+	$("#inputCommandActivetime").blur(function(){
+		COMMANDACTIVETIME = parseInt($("#inputCommandActivetime").val()*1000);
+	});
+	$("#inputCommandActivetimeAlways").change(function(){
+		COMMANDACTIVETIMEALWAYS = $("#inputCommandActivetimeAlways").is(':checked');
+	});
+	$("#inputGenerateCreatureQty").blur(function(){
+		GENERATECREATUREQTY = parseInt($("#inputGenerateCreatureQty").val());
+	});
+	$("#inputSpreadQty").blur(function(){
+		SPREADQTY = parseInt($("#inputSpreadQty").val());
+	});
+	$("#inputFixedSpreadQty").change(function(){
+		FIXEDSPREADQTY = $("#inputFixedSpreadQty").is(':checked');
+	});
+	
+	$("#inputSightrange").blur(function(){
+		SIGHTRANGE = parseInt($("#inputSightrange").val());
+	});
+	$("#inputSightrangeStep").blur(function(){
+		SIGHTRANGESTEP = parseInt($("#inputSightrangeStep").val());
+	});
+	$("#inputSmellrange").blur(function(){
+		SMELLRANGE = parseInt($("#inputSmellrange").val());
+	});
+	$("#inputSmellrangeStep").blur(function(){
+		SMELLRANGESTEP = parseInt($("#inputSmellrangeStep").val());
+	});
+	$("#inputHearrange").blur(function(){
+		HEARRANGE = parseInt($("#inputHearrange").val());
+	});
+	$("#inputHearrangeStep").blur(function(){
+		HEARRANGESTEP = parseInt($("#inputHearrangeStep").val());
+	});
+	$("#inputVerticalMovement").blur(function(){
+		VERTICALMOVEMENT = parseInt($("#inputVerticalMovement").val());
+	});
+	$("#inputHorizontalMovement").blur(function(){
+		HORIZONTALMOVEMENT = parseInt($("#inputHorizontalMovement").val());
+	});
+	$("#inputMovementStep").blur(function(){
+		MOVEMENTVARIATIONSTEP = parseInt($("#inputMovementStep").val());
+	});
+	$("#inputWidthSize").blur(function(){
+		WIDTHSIZE = parseInt($("#inputWidthSize").val());
+	});
+	$("#inputHeightSize").blur(function(){
+		HEIGHTSIZE = parseInt($("#inputHeightSize").val());
+	});
+	$("#inputSizeStep").blur(function(){
+		SIZESTEP = parseInt($("#inputSizeStep").val());
+	});
+	$("#inputRedValue").blur(function(){
+		REDVALUE = parseInt($("#inputRedValue").val());
+	});
+	$("#inputGreenValue").blur(function(){
+		GREENVALUE = parseInt($("#inputGreenValue").val());
+	});
+	$("#inputBlueValue").blur(function(){
+		BLUEVALUE = parseInt($("#inputBlueValue").val());
+	});
+	$("#inputColorVariationStep").blur(function(){
+		COLORVARIATIONSTEP = parseInt($("#inputColorVariationStep").val());
+	});
+	$("#inputSelection").blur(function(){
+		SELECTIONFILTER = $("#inputSelection").val();
+		var test = eval(SELECTIONFILTER);
+		alert("testresult: "+test)
+	});
+	/*$("input[type=text]").keypress(function(){
+		$(this).css("width",$(this).val().length*8+"px");
+	});*/
+	$(".food,.gatherpoint,.flag,.bomb").live("mousedown",function(){
+		$(".food,.gatherpoint,.flag,.bomb").draggable({
+			drag: function(event, ui){
+				var object = getObjectByIdFromArray(this.id,DROPLIST);
+				object.left = $(this).position().left;
+				object.top = $(this).position().top;
+			}
+		});
+	});
+	$(".creature").live("mousedown",function(){
+		$(".creature").draggable({
+			drag: function(event, ui){
+				var object = getObjectByIdFromArray(this.id,CREATURELIST);
+				object.left = $(this).position().left;
+				object.top = $(this).position().top;
+			}
+		});
+	});
+	$(".tooltip").live("mousedown",function(){
+		$(".tooltip").draggable();
+	});
+	$("#recyclebin").droppable({  
+		drop: function(event, ui) { 
+			var class = $(ui.draggable).attr("class").split(" ")[0];
+			if(class == "creature"){
+				var array = CREATURELIST;
+			}else{
+				var array = DROPLIST;
+			}
+			switch(class){
+				case "flag":
+				case "food":
+				case "bait":
+				case "gatherpoint":
+				case "creature":
+					//slow down pause
+					pause();
+					var savedelay = LOOPDELAY;
+					LOOPDELAY = 1000;
+					pause();
+					//safe remove pause			
+					pause();
+					removeFromArrayList(array,this.id);
+					$(ui.draggable).remove();
+					LOOPDELAY = savedelay;
+					pause();
+				break;
+				/*case "creature":
+					pause();
+					var savedelay = LOOPDELAY;
+					LOOPDELAY = 1000;
+					pause();
+					pause();
+					removeFromArrayList(CREATURELIST,this.id);
+					$(ui.draggable).remove();
+					LOOPDELAY = savedelay;
+					pause();
+				break;*/
+			}
+		},           
+	}); 
+	$("*").live("getInfo",function(e){
+		//$.debug(object);
+		//$("body").append('<pre>'+$.dump(e)+'</pre>');
+		//return this
+		//$(this).click();
+	});
+}
+function settingsUpdate(){
+	$("#inputLoopDelay").val(LOOPDELAY);
+	$("#inputCommandActivetime").val(COMMANDACTIVETIME/1000);
+	$("#inputCommandActivetimeAlways").attr('checked',COMMANDACTIVETIMEALWAYS);
+	$("#inputGenerateCreatureQty").val(GENERATECREATUREQTY);
+	$("#inputSpreadQty").val(SPREADQTY);
+	$("#inputFixedSpreadQty").attr('checked',FIXEDSPREADQTY);
+	$("#inputSightrange").val(SIGHTRANGE);
+	$("#inputSightrangeStep").val(SIGHTRANGESTEP);
+	$("#inputSmellrange").val(SMELLRANGE);
+	$("#inputSmellrangeStep").val(SMELLRANGESTEP);
+	$("#inputHearrange").val(HEARRANGE);
+	$("#inputHearrangeStep").val(HEARRANGESTEP);
+	$("#inputVerticalMovement").val(VERTICALMOVEMENT);
+	$("#inputHorizontalMovement").val(HORIZONTALMOVEMENT);
+	$("#inputMovementStep").val(MOVEMENTVARIATIONSTEP);
+	$("#inputWidthSize").val(WIDTHSIZE);
+	$("#inputHeightSize").val(HEIGHTSIZE);
+	$("#inputSizeStep").val(SIZESTEP);
+	$("#inputRedValue").val(REDVALUE);
+	$("#inputGreenValue").val(GREENVALUE);
+	$("#inputBlueValue").val(BLUEVALUE);
+	$("#inputColorVariationStep").val(COLORVARIATIONSTEP);
+	$("#inputSelection").val(SELECTIONFILTER);
+}
+function generateCreatures(){
+	for(i=0;i<GENERATECREATUREQTY;i++){
+		create();
+	}
+}
+$(document).ready(function() {
+	generateCreatures();
+	loopoflifeInterval = setInterval("loopoflife()",LOOPDELAY);
+
+	clickscontroller();
+	settingsUpdate();
+	//$("input[type=text]").each(function(i){$(this).css("width",$(this).val().length)*8+"px";});
+
+});
+
+//]]>
+</script>
+</head>
+
+<body>
+<div id="wrapper">
+    <div id="sidebarLeft">
+        <h2>Enemy Info</h2>
+        <div id="recyclebin"></div>
+    </div>
+    <div id="field">
+    	
+    </div>
+    <div id="sidebarRight">
+    <div class='tabbed_content'>
+
+	<div class='tabs'>
+		<div class='moving_bg'>
+			&nbsp;
+		</div>
+		<span class='tab_item'>
+			Stats
+		</span>
+		<span class='tab_item'>
+			Controls
+		</span>
+		<span class='tab_item'>
+			Settings
+		</span>
+		<span class='tab_item'>
+			Info
+		</span>
+	</div>
+
+	<div class='slide_content'>
+		<div class='tabslider'>
+		<ul><li>
+        	<h3>Stats</h3>
+        	<h4>Totals</h4>
+            <ul>
+                <li>Total created creatures:<span id="totalcreatedcreaturesstat">0</span></li>
+                <li>Total living creatures:<span id="totallivingcreaturesstat">0</span></li>
+                <li>Total drops:<span id="totaldrops">0</span></li>
+                <li>Total active drops:<span id="totalactivedrops">0</span></li>
+                <li>Total single P birth:<span id="totalspbirth">0</span></li>
+                <li>Total dual P birth:<span id="totaldpbirth">0</span></li>
+                <li>Total generations:<span id="totalgenerationsstat">0</span></li>
+				<li><span id="checkCurrentStats" class="pointer">Check current stats</span></li>
+			</ul>
+            <h4>High/Low</h4>
+            <ul>
+                <li>Startinglife:<span id="higheststartinglife">0</span>/<span id="loweststartinglife">0</span></li>
+                <li>Widthsize:<span id="highestwidthsize">0</span>/<span id="lowestwidthsize">0</span></li>
+                <li>Heightsize:<span id="highestheightsize">0</span>/<span id="lowestheightsize">0</span></li>
+                <li>H-movement:<span id="highesthorizontalmovement">0</span>/<span id="lowesthorizontalmovement">0</span></li>
+                <li>V-movement:<span id="highestverticalmovement">0</span>/<span id="lowestverticalmovement">0</span></li>
+                <li>Sightrange:<span id="highestsightrange">0</span>/<span id="lowestsightrange">0</span></li>
+                <li>Smellrange:<span id="highestsmellrange">0</span>/<span id="lowestsmellrange">0</span></li>
+                <li>Hearrange:<span id="highesthearrange">0</span>/<span id="lowesthearrange">0</span></li>
+            </ul>
+            
+        </li></ul>
+        <ul><li>
+            
+			<h3>Controls</h3>
+            <ul>
+                <li><span id="pause" class="pointer">Pause</span></li>
+                <li><span id="addUnit" class="pointer">Add creature from single parent</span></li>
+                <li><span id="deleteUnit" class="pointer">Delete creature</span></li>
+                <li><span id="spreadBait" class="pointer">Spread bait</span></li>
+                <li><span id="spreadFood" class="pointer">Spread food</span></li>
+                <li><span id="spreadBomb" class="pointer">Spread bomb</span></li>
+                <li><span id="spreadFlag" class="pointer">Spread flag</span></li>
+                <li><span id="spreadGatherpoint" class="pointer">Spread gatherpoint</span></li>
+				<li><label for="inputSpreadQty">Spread Qty.: </label> <input type="text" id="inputSpreadQty"></input></li>
+                <li><input type="checkbox" id="inputFixedSpreadQty"></input><label for="inputFixedSpreadQty"> Use fixed quantity</label></li>
+
+                <li><label for="inputCommandActivetime">Waittime(in seconds): </label> <input type="text" id="inputCommandActivetime"></input></li>
+                <li><input type="checkbox" id="inputCommandActivetimeAlways"></input><label for="inputCommandActivetimeAlways"> Don't ask, just apply</label></li>
+                <li><span id="generatecreatures" class="pointer">Generate creatures</span></li>
+                <li><label for="inputGenerateCreatureQty">Creature Qty.: </label> <input type="text" id="inputGenerateCreatureQty"></input></li>
+            </ul>
+            
+        </li></ul>
+        <ul><li>
+            
+        	<h3>Settings</h3>
+            <ul style="list-style-type:none;">
+                <li><label for="inputLoopDelay">LoopDelay: </label> <input type="text" id="inputLoopDelay"></input></li>
+                <li><label for="inputSightrange">Sightrange: </label> <input type="text" id="inputSightrange"></input></li>
+                <li><label for="inputSightrangeStep">Sightrange step: </label> <input type="text" id="inputSightrangeStep"></input></li>
+				<li><label for="inputSmellrange">Smellrange: </label> <input type="text" id="inputSmellrange"></input></li>
+                <li><label for="inputSmellrangeStep">Smellrange step: </label> <input type="text" id="inputSmellrangeStep"></input></li>
+				<li><label for="inputHearrange">Hearrange: </label> <input type="text" id="inputHearrange"></input></li>
+                <li><label for="inputHearrangeStep">Hearrange step: </label> <input type="text" id="inputHearrangeStep"></input></li>
+                <li><label for="inputVerticalMovement">V-movement: </label> <input type="text" id="inputVerticalMovement"></input></li>
+                <li><label for="inputHorizontalMovement">H-movement: </label> <input type="text" id="inputHorizontalMovement"></input></li>
+                <li><label for="inputMovementStep">Movement step: </label> <input type="text" id="inputMovementStep"></input></li>
+				<li><label for="inputWidthSize">Width size: </label> <input type="text" id="inputWidthSize"></input></li>
+                <li><label for="inputHeightSize">Height size: </label> <input type="text" id="inputHeightSize"></input></li>
+                <li><label for="inputSizeStep">Size step: </label> <input type="text" id="inputSizeStep"></input></li>
+				<li><label for="inputRedValue">Red value: </label> <input type="text" id="inputRedValue"></input></li>
+				<li><label for="inputGreenValue">Green value: </label> <input type="text" id="inputGreenValue"></input></li>
+				<li><label for="inputBlueValue">Blue value: </label> <input type="text" id="inputBlueValue"></input></li>
+				<li><label for="inputColorVariationStep">Colorvariation step: </label> <input type="text" id="inputColorVariationStep"></input></li>
+				<!--<li><label for="inputSelection">Selection: </label> <input type="text" id="inputSelection"></input></li>-->
+				<li><label for="inputSelection">Selection: </label> <textarea rows="8" cols="18" id="inputSelection"></textarea></li>
+				<!--<select><option>Startinglife</option><option>Widthsize</option><option>Heightsize</option></select>
+				<select><option>></option><option><</option><option>==</option></select>
+				<select><option>Loopdelay</option><option>Sightrange</option><option>Verticalmovement</option><option>Horizontalmovement</option><option>Input</option></select>
+				<label for="inputColorVariationStep">Colorvariation step: </label> <input type="text" id="inputColorVariationStep"></input>-->
+            </ul>  
+        </li></ul>
+        <ul><li>
+            
+        	<h3>Info</h3>
+        	<ul>
+        		<li>Coded by: MB</li>
+                <li>All rights reserved &copy;2011</li>
+        	</ul>
+        	<h4>Output</h4>
+        	<div id="output"></div>
+
+    	</li></ul>
+    </div><!-- /.tabslider -->
+    </div><!-- /slidecontent -->
+    </div><!-- /tabbedcontent -->
+    </div><!-- /#rightsidebar -->
+</div><!-- /wrapper -->
+<div id="dropmenu" class="contextMenu">
+    <ul>
+        <li id="btn_dropbait"><img src="images/add-1-icon.png" alt="" /> Drop bait</li>
+        <li id="btn_dropfood"><img src="images/add-1-icon.png" alt="" /> Drop food</li>
+        <li id="btn_dropbomb"><img src="images/calculator-icon.png" alt="" /> Drop bomb</li>
+        <li id="btn_dropflag"><img src="images/event-icon-16x16.png" alt="" /> Drop flag</li>
+        <li id="btn_droparrow"><img src="images/down-icon-16x16.png" alt="" /> Drop gatherpoint</li>
+        <li id="btn_delete"><img src="images/delete-icon-16x16.png" alt="" /> Delete</li>
+        <li id="btn_showinfo"><img src="images/info-icon.png" alt="" /> Show info</li>
+        <li id="btn_close"><img src="images/close-icon.png" alt="" /> Close</li>
+    </ul>
+</div>
+</body>
+</html>

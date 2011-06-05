@@ -1,0 +1,72 @@
+AI LOL:: Arty Insects Loop Of Life
+
+Changelog:
+::15 february 2011:
+-Bassic setup: stats, creation, movement, pause, lifespan and single parent evolutions
+
+::16 february 2011:
+-overlapping, eating, dual parent evolutions, add creature, genders
+
+::17 february 2011:
+-fixed bounding box,spawn near parent(s),tooltip with info, svg basic implementation,move to target,drop food,sightrange
+
+::18 february 2011:
+-changed tooltip & info, added contextmenu, food and bombs,sightrange +show range on mouseover
+
+::19 february 2011:
+-fixed drops, fixed sightrange, added bait, performance fixes,fixed out of field generated creatures,fix out of field drops,added loopdelay/waittime setting, added spread drops
+
+::20 february 2011:
+-tabbed nav, extra side, wider field, quickfix gather points remove spread(all get faded),draggable creature/drops/tooltip,info added target creature 
+
+::21 february 2011:
+-added recycle bin,added stats: drops/single parent birth & dual parent birth/vertical movment/horizontalmovement/sightrange/smellrange/hearrange/total generations,hearrange and smellrange added,showRange function added,drops can lure by smell/sight/sound,added generate creatures
+
+::22 february 2011:
+-added generate creatures qty settings,added generating settings
+
+::24 february 2011:
+-fixed generate creatures,added spread drops qty and fixed or random(legacy), editable generating settings
+
+::25 february 2011:
+-quick eval test case for selection criteria
+
+::26 february 2011:
+-jquery svg color manipulation added (creatures now hav body colour and gender colour cusomized in svg),show current stats
+
+::28 february 2011:
+-rewritten positioning calculation, fixed checkbox bug, fixed tooltip width,selection fix, draggable bomb
+
+::1 march 2011:
+-added 2 choices to extinction screen,rewritten jquery.deepest plugin, added show current "fittests"
+
+
+>>filters mss met eval()
+
+>>skill levels met object nodig x lvl -> beloning skill lvl +1
+>>xp voor skillevels, bereikte level is basis voor offsprings of niet, afhankelijk van skill
+>>obediance,patience, leadership
+>>per creature -> array met items en array met obstakels om te ontwijken
+>>tasks
+>>verschillende drops(verschillende food/bait en teleporter(A/B))
+
+>>comunicatie -> items for maken basis, elk 1 verschillend item halen
+>>comunicatie skill -> hoger = verder en beter te begrijpen/acurater
+>>communicatie met anderen verhoogt lvl
+>>team play/competition
+>>save functie
+>>specialty's
+>>shop voor kopen specials
+>>graphs -> flot/sparklines
+
+BUG:
+-spread gatherpoint verwijder per gegenereerd ipv alle
+-bug delete op t.id bij dingen toegevoegd na opstart
+-bug deleting creature 1 niet bewegen, tot alles behalve 1 niet bewegen
+-bug freeze creatures wellicht te maken met ^^
+-svg aangepast per laatst geopende tooltip, sluiten tooltip gaat terug laatste actieve geopende status -> class stijl overschreven door laatste toegevoegde
+
+check:
+-kan zijn bij sommige typeof checks dat id <cijfer> is ipv #<cijfer> bij niet object
+-herschrijven svg.style naar selector.css() of .attr()
+-hover over creature/select current stats geeft selector verwacht waarschuwing
