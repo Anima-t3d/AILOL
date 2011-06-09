@@ -40,6 +40,8 @@ Changelog:
 ::1 march 2011:
 -added 2 choices to extinction screen,rewritten jquery.deepest plugin, added show current "fittests"
 
+::9 june 2011:
+-fixed compability with jQuery v1.6+
 
 >>filters mss met eval()
 
